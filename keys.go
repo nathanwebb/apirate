@@ -9,6 +9,8 @@ import (
 	"encoding/pem"
 	"io/ioutil"
 	"log"
+	"net/url"
+	"os"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -19,29 +21,52 @@ type key struct {
 	Name               string
 	Description        string
 	PublicKey          string
-	PrivateKeyFilename string `json:"-"`
+	PrivateKeyFilename string
 }
 
-func createSSHKey(sshkey key) (key, error) {
-	sshkey.Type = "ssh"
-	sshkey.PrivateKeyFilename = "./id_rsa_test"
+var keys []key
+
+func loadKeys(keystore string) ([]key, error) {
+	k, _ := url.ParseRequestURI(keystore)
+	switch k.Scheme {
+	case "mongo":
+		return loadKeysFromMongo(keystore)
+	default:
+		return loadKeysFromFile(k.Path)
+	}
+}
+
+func saveKeys(keystore string) error {
+	k, _ := url.ParseRequestURI(keystore)
+	switch k.Scheme {
+	case "mongo":
+		return saveKeysToMongo(keystore)
+	default:
+		return saveKeysToFile(k.Path)
+	}
+}
+
+func createSSHKey(newkey key) (key, error) {
 	bitSize := 4096
 
 	privateKey, err := generatePrivateKey(bitSize)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	privateKeyBytes := encodePrivateKeyToPEM(privateKey)
+
+	newkey.Type = "ssh"
+	newkey.PrivateKeyFilename = "./id_rsa_test"
 	publicKeyBytes, err := generatePublicKey(&privateKey.PublicKey)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	privateKeyBytes := encodePrivateKeyToPEM(privateKey)
-	err = writeKeyToFile(privateKeyBytes, sshkey.PrivateKeyFilename)
+	newkey.PublicKey = string([]byte(publicKeyBytes))
+	err = storeKey(privateKeyBytes, newkey)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	sshkey.PublicKey = string([]byte(publicKeyBytes))
-	return sshkey, err
+	return newkey, err
 }
 
 func generatePrivateKey(bitSize int) (*rsa.PrivateKey, error) {
@@ -78,12 +103,16 @@ func generatePublicKey(privatekey *rsa.PublicKey) ([]byte, error) {
 	return pubKeyBytes, nil
 }
 
-func writeKeyToFile(keyBytes []byte, saveFileTo string) error {
-	err := ioutil.WriteFile(saveFileTo, keyBytes, 0600)
+func storeKey(keyBytes []byte, newkey key) error {
+	err := ioutil.WriteFile(newkey.PrivateKeyFilename, keyBytes, 0600)
 	if err != nil {
 		return err
 	}
-
-	log.Printf("Key saved to: %s", saveFileTo)
+	keys = append(keys, newkey)
+	err = saveKeys(os.Getenv("KEYSTORE"))
+	if err != nil {
+		return err
+	}
+	log.Printf("Key saved to: %s", newkey.PrivateKeyFilename)
 	return nil
 }

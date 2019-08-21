@@ -15,7 +15,6 @@ GET /keys:id - get the key specified by the id
 
 
 
-
 functions:
 main.go - start the api
 
@@ -28,11 +27,14 @@ read in a config file, linking api with command
 
 
 {
-    name: 'ping',
+    name: "ping",
     exec: "ssh connect@192.168.188.69 ssh {{dgexname}} ping {{deviceIP}}"
 }, {
-    name: 'probeSnmpTests',
-    exec: ssh connect@192.168.188.69 ssh {{dgexname}} /traverse/utils/probeSnmpTests.pl --host={{deviceIP}} --community={{commstring}} --version={{snmpversion}} {{if eq snmpversion 3}}--authproto{{authproto}} --privprot{{privproto}}{{end}}
+    name: "probeSnmpTests",
+    exec: "ssh connect@192.168.188.69 ssh {{dgexname}} /traverse/utils/probeSnmpTests.pl --host={{deviceIP}} --community={{commstring}} --version={{snmpversion}} {{if eq snmpversion 3}}--authproto{{authproto}} --privprot{{privproto}}{{end}}"
+}, {
+    name: "writeConnect",
+    exec: "ssh connect@192.168.188.69 /scripts/connect/appendToConf.sh {{devicename}} {{deviceip}} {{password}} {{enable}}"
 }
 
 

@@ -22,7 +22,7 @@ func TestCommandsParsing(t *testing.T) {
 	}}
 
 	for _, command := range commands {
-		result, err := getCommandFromUrl(command.url)
+		result, err := getCommandFromURL(command.url)
 		if err != nil {
 			t.Errorf("error in getCommandFromUrl: %s", err.Error())
 		}
