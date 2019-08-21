@@ -1,48 +1,39 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"os"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
-func TestHealthCheckHandler(t *testing.T) {
-	url := fmt.Sprintf("/%s/health", apiVersion)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handleEvent)
-	handler.ServeHTTP(rr, req)
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-	expected := `{"status":0`
-	if !strings.HasPrefix(rr.Body.String(), expected) {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
-	}
+func TestGetKeys(t *testing.T) {
+	//keys, err := getKeys()
+	//if len(keys) == 0 {
+	//t.Error(err.Error())
+	//}
 }
 
-func TestGetResults(t *testing.T) {
+func TestMain(m *testing.M) {
+	gin.SetMode(gin.TestMode)
 
-	url := fmt.Sprintf("/%s/", apiVersion)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handleEvent)
-	handler.ServeHTTP(rr, req)
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-	expected := `{"status":0`
-	if !strings.HasPrefix(rr.Body.String(), expected) {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
-	}
-	fmt.Printf("%s\n", rr.Body.String())
+	os.Exit(m.Run())
+}
 
+func getRouter(withTemplates bool) *gin.Engine {
+	r := gin.Default()
+	if withTemplates {
+		r.LoadHTMLGlob("templates/*")
+	}
+	return r
+}
+
+func testHTTPResponse(t *testing.T, r *gin.Engine, req *http.Request, f func(w *httptest.ResponseRecorder) bool) {
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if !f(w) {
+		t.Fail()
+	}
 }

@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/url"
-	"os"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -18,13 +17,9 @@ import (
 type key struct {
 	ID                 int
 	Type               string
-	Name               string
-	Description        string
 	PublicKey          string
 	PrivateKeyFilename string
 }
-
-var keys []key
 
 func loadKeys(keystore string) ([]key, error) {
 	k, _ := url.ParseRequestURI(keystore)
@@ -36,7 +31,7 @@ func loadKeys(keystore string) ([]key, error) {
 	}
 }
 
-func saveKeys(keystore string) error {
+func saveKeys(keystore string, keys []key) error {
 	k, _ := url.ParseRequestURI(keystore)
 	switch k.Scheme {
 	case "mongo":
@@ -105,11 +100,6 @@ func generatePublicKey(privatekey *rsa.PublicKey) ([]byte, error) {
 
 func storeKey(keyBytes []byte, newkey key) error {
 	err := ioutil.WriteFile(newkey.PrivateKeyFilename, keyBytes, 0600)
-	if err != nil {
-		return err
-	}
-	keys = append(keys, newkey)
-	err = saveKeys(os.Getenv("KEYSTORE"))
 	if err != nil {
 		return err
 	}

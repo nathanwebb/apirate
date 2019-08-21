@@ -1,20 +1,9 @@
 package main
 
-import (
-	"net/http"
-	"os"
-)
-
-const apiVersion = "v1"
+import "github.com/gin-gonic/gin"
 
 func main() {
-	keystore := os.Getenv("KEYSTORE")
-	loadKeys(keystore)
-}
-
-func handleEvent(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "POST":
-	case "GET":
-	}
+	router := gin.Default()
+	initialiseRoutes(router)
+	router.Run()
 }

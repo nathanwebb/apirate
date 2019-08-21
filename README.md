@@ -28,6 +28,7 @@ read in a config file, linking api with command
 
 {
     name: "ping",
+    method: "ssh",
     exec: "ssh connect@192.168.188.69 ssh {{dgexname}} ping {{deviceIP}}"
 }, {
     name: "probeSnmpTests",

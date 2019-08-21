@@ -3,9 +3,7 @@ package main
 import "testing"
 
 func TestCreateSSHKey(t *testing.T) {
-	sshkey := key{
-		Name: "test",
-	}
+	sshkey := key{}
 	sshkey, err := createSSHKey(sshkey)
 	if err != nil {
 		t.Errorf(err.Error())
