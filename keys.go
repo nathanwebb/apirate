@@ -7,6 +7,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/url"
@@ -22,6 +23,9 @@ type key struct {
 }
 
 func loadKeys(keystore string) ([]key, error) {
+	if keystore == "" {
+		return []key{}, errors.New("KEYSTORE environment variable must be defined on the server")
+	}
 	k, _ := url.ParseRequestURI(keystore)
 	switch k.Scheme {
 	case "mongo":

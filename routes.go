@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 const apiVersion = "v1"
-
-var keystore = os.Getenv("KEYSTORE")
 
 func initialiseRoutes(router *gin.Engine) {
 	keysRoutes := router.Group(fmt.Sprintf("/api/%s/keys", apiVersion))
@@ -21,8 +20,12 @@ func initialiseRoutes(router *gin.Engine) {
 }
 
 func getKeys(c *gin.Context) {
-	loadKeys(keystore)
-
+	keystore := os.Getenv("KEYSTORE")
+	keys, err := loadKeys(keystore)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+	c.JSON(http.StatusOK, keys)
 }
 
 func createKey(c *gin.Context) {
