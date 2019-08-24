@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -9,7 +10,7 @@ import (
 func loadKeysFromFile(keyfile string) ([]key, error) {
 	keys := []key{}
 	keypath := filepath.Join(".", keyfile)
-	f, err := os.Open(keypath)
+	f, err := os.OpenFile(keypath, os.O_RDONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return keys, err
 	}
@@ -18,6 +19,11 @@ func loadKeysFromFile(keyfile string) ([]key, error) {
 	return keys, err
 }
 
-func saveKeysToFile(keystore string) error {
-	return nil
+func saveKeysToFile(keyfile string, keys []key) error {
+	keypath := filepath.Join(".", keyfile)
+	file, err := json.MarshalIndent(keys, "", " ")
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(keypath, file, 0644)
 }

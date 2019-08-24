@@ -39,9 +39,9 @@ func saveKeys(keystore string, keys []key) error {
 	k, _ := url.ParseRequestURI(keystore)
 	switch k.Scheme {
 	case "mongo":
-		return saveKeysToMongo(keystore)
+		return saveKeysToMongo(keystore, keys)
 	default:
-		return saveKeysToFile(k.Path)
+		return saveKeysToFile(k.Path, keys)
 	}
 }
 

@@ -17,7 +17,7 @@ func TestSaveKeyToFile(t *testing.T) {
 	keyfile := "keys_test.json"
 	keys, err := loadKeysFromFile(keyfile)
 	originalKeysLen := len(keys)
-	err = saveKeysToFile(keyfile)
+	err = saveKeysToFile(keyfile, keys)
 	if err != nil {
 		t.Error(err.Error())
 	}
