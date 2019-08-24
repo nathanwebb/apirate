@@ -15,7 +15,7 @@ func TestCreateSSHKey(t *testing.T) {
 }
 
 func TestLoadKeys(t *testing.T) {
-	keystore := "file:///keys_test.json"
+	keystore := "file:///keystore_test.json"
 	keys, err := loadKeys(keystore)
 	if err != nil {
 		t.Error(err.Error())
