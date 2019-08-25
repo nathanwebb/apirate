@@ -45,6 +45,26 @@ func saveKeys(keystore string, keys []key) error {
 	}
 }
 
+func deleteAllKeys(keystore string) error {
+	k, _ := url.ParseRequestURI(keystore)
+	switch k.Scheme {
+	case "mongo":
+		return deleteAllKeysFromMongo(keystore)
+	default:
+		return deleteAllKeysFromFile(k.Path)
+	}
+}
+
+func deleteKey(keystore string, id int) error {
+	k, _ := url.ParseRequestURI(keystore)
+	switch k.Scheme {
+	case "mongo":
+		return deleteKeyFromMongo(keystore, id)
+	default:
+		return deleteKeyFromFile(k.Path, id)
+	}
+}
+
 func createSSHKey(newkey key) (key, error) {
 	bitSize := 4096
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -56,15 +55,12 @@ func TestGetSingleKeyWithKeystore(t *testing.T) {
 		if err != nil {
 			t.Errorf("%s", err.Error())
 		}
-		keys := []key{}
-		err = json.Unmarshal(p, &keys)
+		responseKey := key{}
+		err = json.Unmarshal(p, &responseKey)
 		if err != nil {
 			t.Error(err.Error())
 		}
-		if len(keys) != 1 {
-			t.Error("incorrect number of keys returned")
-		}
-		if keys[0].Type != "ssh" {
+		if responseKey.Type != "ssh" {
 			t.Errorf("incorrect keys returned")
 		}
 
@@ -103,11 +99,13 @@ func TestCreateKeys(t *testing.T) {
 
 func GetKeysWithKeystore(t *testing.T, keyID string) (*http.Request, *gin.Engine) {
 	r := gin.Default()
-	apiurl := "/api/v1/keys"
+	apiUrl := "/api/v1/keys"
+	requestUrl := apiUrl
 	if keyID != "" {
-		apiurl = fmt.Sprintf("%s?%s", apiurl, keyID)
+		requestUrl = requestUrl + "/" + keyID
+		apiUrl = apiUrl + "/:id"
 	}
-	r.GET(apiurl, getKeys)
-	req, _ := http.NewRequest("GET", apiurl, nil)
+	r.GET(apiUrl, getKeys)
+	req, _ := http.NewRequest("GET", requestUrl, nil)
 	return req, r
 }

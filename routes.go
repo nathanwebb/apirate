@@ -17,8 +17,8 @@ func initialiseRoutes(router *gin.Engine) {
 	keysRoutes.GET("/", getKeys)
 	keysRoutes.GET("/:id", getKeys)
 	keysRoutes.POST("/", createKey)
-	keysRoutes.DELETE("/", deleteAllKeys)
-	keysRoutes.DELETE("/kes:id", deleteKey)
+	keysRoutes.DELETE("/", deleteKeys)
+	keysRoutes.DELETE("/:id", deleteKeys)
 }
 
 func getKeys(c *gin.Context) {
@@ -81,10 +81,23 @@ func createKey(c *gin.Context) {
 	c.JSON(http.StatusOK, newKey)
 }
 
-func deleteAllKeys(c *gin.Context) {
-
-}
-
-func deleteKey(c *gin.Context) {
-
+func deleteKeys(c *gin.Context) {
+	keystore := os.Getenv("KEYSTORE")
+	keyIDStr := c.Param("id")
+	var err error
+	if keyIDStr != "" {
+		keyID, err := strconv.Atoi(keyIDStr)
+		err = deleteKey(keystore, keyID)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+	} else {
+		err = deleteAllKeys(keystore)
+	}
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
 }

@@ -7,3 +7,11 @@ func loadKeysFromMongo(keystore string) ([]key, error) {
 func saveKeysToMongo(keystore string, keys []key) error {
 	return nil
 }
+
+func deleteAllKeysFromMongo(keystore string) error {
+	return nil
+}
+
+func deleteKeyFromMongo(keystore string, id int) error {
+	return nil
+}

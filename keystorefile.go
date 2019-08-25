@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -33,4 +34,37 @@ func saveKeysToFile(keyfile string, keys []key) error {
 	}
 	fmt.Println(keypath)
 	return ioutil.WriteFile(keypath, jsonfile, 0644)
+}
+
+func deleteAllKeysFromFile(keyfile string) error {
+	existingKeys, err := loadKeysFromFile(keyfile)
+	for _, k := range existingKeys {
+		err = os.Remove(k.PrivateKeyFilename)
+		if err != nil && !os.IsNotExist(err) {
+			return errors.New(fmt.Sprintf("failed to remove private key %s: %s", k.PrivateKeyFilename, err.Error()))
+		}
+	}
+	err = os.Remove(keyfile)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to remove keystore %s: %s", keyfile, err.Error()))
+	}
+	return nil
+}
+
+func deleteKeyFromFile(keyfile string, id int) error {
+	existingKeys, err := loadKeysFromFile(keyfile)
+	n := 0
+	for _, k := range existingKeys {
+		if k.ID == id {
+			err = os.Remove(k.PrivateKeyFilename)
+			if err != nil && !os.IsNotExist(err) {
+				return errors.New(fmt.Sprintf("failed to remove private key %s: %s", k.PrivateKeyFilename, err.Error()))
+			}
+		} else {
+			existingKeys[n] = k
+			n++
+		}
+	}
+	existingKeys = existingKeys[:n]
+	return saveKeysToFile(keyfile, existingKeys)
 }
