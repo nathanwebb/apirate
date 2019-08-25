@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -13,12 +12,14 @@ import (
 const apiVersion = "v1"
 
 func initialiseRoutes(router *gin.Engine) {
-	keysRoutes := router.Group(fmt.Sprintf("/api/%s/keys", apiVersion))
+	basePath := "/api/" + apiVersion
+	keysRoutes := router.Group("/keys")
 	keysRoutes.GET("/", getKeys)
 	keysRoutes.GET("/:id", getKeys)
 	keysRoutes.POST("/", createKey)
 	keysRoutes.DELETE("/", deleteKeys)
 	keysRoutes.DELETE("/:id", deleteKeys)
+	router.GET(basePath+"/results", getResults)
 }
 
 func getKeys(c *gin.Context) {
@@ -100,4 +101,10 @@ func deleteKeys(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusNoContent, nil)
+}
+
+func getResults(c *gin.Context) {
+	//loadCommands()
+	//parseCommand()
+	//runCommand()
 }

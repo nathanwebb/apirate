@@ -1,5 +1,10 @@
 package main
 
-func getCommandFromURL(command string) (string, error) {
+type command struct {
+	Exec   string `json:"command"`
+	Params string `json:"params"`
+}
+
+func loadCommands(source string) ([]command, error) {
 	return "", nil
 }

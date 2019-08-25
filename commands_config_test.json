@@ -1,0 +1,7 @@
+[{
+    "exec":  "ssh",
+    "params": "nwebb@192.168.2.6 ping {{deviceip}} -n 4"
+}, {
+    "exec": "ping",
+    "params": "{{ip}} -n 4"
+}]
