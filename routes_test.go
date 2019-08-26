@@ -97,6 +97,39 @@ func TestCreateKeys(t *testing.T) {
 	}
 }
 
+func TestGetResults(t *testing.T) {
+	commandsfile := "commands_config_test.json"
+	os.Setenv("COMMANDSTORE", "file:///"+commandsfile)
+	apiURL := "/api/v1/results"
+	r := gin.Default()
+	r.GET(apiURL, getResults)
+
+	requests := []string{
+		"?name=local ping&ip=127.0.0.1",
+		"?name=local ping&ip=127.0.0.1;touch test.txt",
+	}
+	for _, request := range requests {
+		req, _ := http.NewRequest("GET", apiURL+request, nil)
+		testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+			p, err := ioutil.ReadAll(w.Body)
+			if err != nil {
+				t.Errorf("%s", err.Error())
+			}
+			result := command{}
+			err = json.Unmarshal(p, &result)
+			if err != nil {
+				t.Error(err.Error())
+			}
+			if result.Stdout == "" {
+				t.Errorf("no output returned")
+			}
+
+			statusOK := w.Code == http.StatusOK
+			return statusOK
+		})
+	}
+}
+
 func GetKeysWithKeystore(t *testing.T, keyID string) (*http.Request, *gin.Engine) {
 	r := gin.Default()
 	apiUrl := "/api/v1/keys"

@@ -37,7 +37,7 @@ func loadKeys(keystore string) ([]key, error) {
 
 func saveKeys(keystore string, keys []key) error {
 	if keystore == "" {
-		return []key{}, errors.New("KEYSTORE environment variable must be defined on the server")
+		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
 	k, _ := url.ParseRequestURI(keystore)
 	switch k.Scheme {
@@ -50,7 +50,7 @@ func saveKeys(keystore string, keys []key) error {
 
 func deleteAllKeys(keystore string) error {
 	if keystore == "" {
-		return []key{}, errors.New("KEYSTORE environment variable must be defined on the server")
+		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
 	k, _ := url.ParseRequestURI(keystore)
 	switch k.Scheme {
@@ -63,7 +63,7 @@ func deleteAllKeys(keystore string) error {
 
 func deleteKey(keystore string, id int) error {
 	if keystore == "" {
-		return []key{}, errors.New("KEYSTORE environment variable must be defined on the server")
+		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
 	k, _ := url.ParseRequestURI(keystore)
 	switch k.Scheme {

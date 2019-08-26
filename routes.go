@@ -104,7 +104,22 @@ func deleteKeys(c *gin.Context) {
 }
 
 func getResults(c *gin.Context) {
-	//loadCommands()
-	//parseCommand()
-	//runCommand()
+	queryArgs := c.Request.URL.Query()
+	commandstore := os.Getenv("COMMANDSTORE")
+	commands, err := loadCommands(commandstore)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	command, err := getCommandForRequest(c, commands)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	results, err := execCommand(command, queryArgs)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, results)
 }
