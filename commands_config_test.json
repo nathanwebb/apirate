@@ -2,10 +2,10 @@
     "name": "remote ping",
     "cmd":  "ping",
     "user": "nwebb",
-    "host": "192.168.2.6",
-    "params": "ping {{deviceip}} -c 4"
+    "host": "172.16.100.69",
+    "params": "ping -c 4 {{.ip}}"
 }, {
     "name": "local ping",
     "cmd": "ping",
-    "params": "{{ip}} -c 4"
+    "params": "-c 4 {{.ip}}"
 }]
