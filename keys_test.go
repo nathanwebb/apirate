@@ -20,7 +20,7 @@ func TestLoadKeys(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if len(keys) == 0 || keys[0].ID != 1 {
+	if len(keys) == 0 || keys[0].ID != "1" {
 		t.Errorf("failed to load keys")
 	}
 }

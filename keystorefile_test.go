@@ -11,7 +11,7 @@ func TestLoadKeysFromFile(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if len(keys) == 0 || keys[0].ID != 1 {
+	if len(keys) == 0 || keys[0].ID != "1" {
 		t.Errorf("failed to load keys")
 	}
 }
@@ -33,7 +33,7 @@ func TestLoadKeysFromMissingFile(t *testing.T) {
 func TestSaveKeyToFile(t *testing.T) {
 	keyfile := "keys_test.json"
 	keys := []key{{
-		ID:                 2,
+		ID:                 "2",
 		Type:               "ssh",
 		PublicKey:          "rsa-ssh...",
 		PrivateKeyFilename: "id_rsa_test_2",
@@ -55,7 +55,7 @@ func TestSaveKeyToFile(t *testing.T) {
 func TestDeleteAllKeys(t *testing.T) {
 	keyfile := "keys_test.json"
 	keys := []key{{
-		ID:                 2,
+		ID:                 "2",
 		Type:               "ssh",
 		PublicKey:          "rsa-ssh...",
 		PrivateKeyFilename: "id_rsa_test_3",
@@ -77,12 +77,12 @@ func TestDeleteAllKeys(t *testing.T) {
 func TestDeleteKey(t *testing.T) {
 	keyfile := "keys_test_single_delete.json"
 	keys := []key{{
-		ID:                 2,
+		ID:                 "2",
 		Type:               "ssh",
 		PublicKey:          "rsa-ssh...",
 		PrivateKeyFilename: "id_rsa_test_4",
 	}, {
-		ID:                 3,
+		ID:                 "3",
 		Type:               "ssh",
 		PublicKey:          "rsa-ssh...",
 		PrivateKeyFilename: "id_rsa_test_5",
@@ -97,7 +97,7 @@ func TestDeleteKey(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	err = deleteKeyFromFile(keyfile, 2)
+	err = deleteKeyFromFile(keyfile, "2")
 	if err != nil {
 		t.Errorf("failed to delete key: %s", err.Error())
 	}
@@ -112,7 +112,7 @@ func TestDeleteKey(t *testing.T) {
 	if len(keys) > 1 {
 		t.Errorf("failed to delete key from file. Still %d keys", len(keys))
 	}
-	if len(keys) == 1 && keys[0].ID == 2 {
+	if len(keys) == 1 && keys[0].ID == "2" {
 		t.Errorf("deleted wrong key")
 	}
 

@@ -2,9 +2,9 @@ package main
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +13,7 @@ const apiVersion = "v1"
 
 func initialiseRoutes(router *gin.Engine) {
 	basePath := "/api/" + apiVersion
-	keysRoutes := router.Group("/keys")
+	keysRoutes := router.Group(basePath + "/keys")
 	keysRoutes.GET("/", getKeys)
 	keysRoutes.GET("/:id", getKeys)
 	keysRoutes.POST("/", createKey)
@@ -31,7 +31,6 @@ func getKeys(c *gin.Context) {
 	}
 	keyID := c.Param("id")
 	if keyID != "" {
-		keyID, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -42,7 +41,7 @@ func getKeys(c *gin.Context) {
 	}
 }
 
-func getSingleKey(c *gin.Context, keys []key, keyID int) {
+func getSingleKey(c *gin.Context, keys []key, keyID string) {
 	for _, k := range keys {
 		if k.ID == keyID {
 			c.JSON(http.StatusOK, k)
@@ -59,8 +58,12 @@ func createKey(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	newKey := key{
-		Type: c.PostForm("Type"),
+	//newKey := key{
+	//Type: c.PostForm("type"),
+	//}
+	var newKey key
+	if c.ShouldBindJSON(&newKey) == nil {
+		log.Println(newKey.Type)
 	}
 	switch newKey.Type {
 	case "ssh":
@@ -84,10 +87,9 @@ func createKey(c *gin.Context) {
 
 func deleteKeys(c *gin.Context) {
 	keystore := os.Getenv("KEYSTORE")
-	keyIDStr := c.Param("id")
+	keyID := c.Param("id")
 	var err error
-	if keyIDStr != "" {
-		keyID, err := strconv.Atoi(keyIDStr)
+	if keyID != "" {
 		err = deleteKey(keystore, keyID)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)

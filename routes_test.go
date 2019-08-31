@@ -1,14 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
-	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -73,17 +72,16 @@ func TestCreateKeys(t *testing.T) {
 	keyfile := "keystore_test_dummy.json"
 	os.Setenv("KEYSTORE", "file:///"+keyfile)
 	apiurl := "/api/v1/keys"
-	w := httptest.NewRecorder()
 
 	router := gin.Default()
 	router.POST(apiurl, createKey)
 
-	newKey := url.Values{}
-	newKey.Set("Type", "ssh")
-	req, _ := http.NewRequest("POST", apiurl, strings.NewReader(newKey.Encode()))
-	req.Header.Add("Content-Length", strconv.Itoa(len(newKey.Encode())))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	newKey := []byte(`{"type": "ssh"}`)
+	req, _ := http.NewRequest("POST", apiurl, bytes.NewBuffer(newKey))
+	req.Header.Set("Content-Type", "application/json")
+	fmt.Printf("%+v\n", req)
 
+	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Fail()

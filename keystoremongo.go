@@ -12,6 +12,6 @@ func deleteAllKeysFromMongo(keystore string) error {
 	return nil
 }
 
-func deleteKeyFromMongo(keystore string, id int) error {
+func deleteKeyFromMongo(keystore string, id string) error {
 	return nil
 }

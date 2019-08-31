@@ -51,7 +51,7 @@ func deleteAllKeysFromFile(keyfile string) error {
 	return nil
 }
 
-func deleteKeyFromFile(keyfile string, id int) error {
+func deleteKeyFromFile(keyfile string, id string) error {
 	existingKeys, err := loadKeysFromFile(keyfile)
 	n := 0
 	for _, k := range existingKeys {

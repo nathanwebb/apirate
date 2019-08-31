@@ -12,12 +12,13 @@ import (
 	"log"
 	"net/url"
 
+	"github.com/rs/xid"
 	"golang.org/x/crypto/ssh"
 )
 
 type key struct {
-	ID                 int
-	Type               string
+	ID                 string
+	Type               string `json:"type"`
 	PublicKey          string
 	PrivateKeyFilename string
 }
@@ -61,7 +62,7 @@ func deleteAllKeys(keystore string) error {
 	}
 }
 
-func deleteKey(keystore string, id int) error {
+func deleteKey(keystore string, id string) error {
 	if keystore == "" {
 		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
@@ -84,7 +85,8 @@ func createSSHKey(newkey key) (key, error) {
 	privateKeyBytes := encodePrivateKeyToPEM(privateKey)
 
 	newkey.Type = "ssh"
-	newkey.PrivateKeyFilename = "./id_rsa_test"
+	newkey.ID = xid.New().String()
+	newkey.PrivateKeyFilename = generateKeyFilename(newkey)
 	publicKeyBytes, err := generatePublicKey(&privateKey.PublicKey)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -95,6 +97,10 @@ func createSSHKey(newkey key) (key, error) {
 		log.Fatal(err.Error())
 	}
 	return newkey, err
+}
+
+func generateKeyFilename(newkey key) string {
+	return newkey.ID + "_id_rsa"
 }
 
 func generatePrivateKey(bitSize int) (*rsa.PrivateKey, error) {
