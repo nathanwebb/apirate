@@ -23,8 +23,7 @@ func initialiseRoutes(router *gin.Engine) {
 }
 
 func getKeys(c *gin.Context) {
-	keystore := os.Getenv("KEYSTORE")
-	keys, err := loadKeys(keystore)
+	keys, err := loadKeys()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -52,15 +51,11 @@ func getSingleKey(c *gin.Context, keys []key, keyID string) {
 }
 
 func createKey(c *gin.Context) {
-	keystore := os.Getenv("KEYSTORE")
-	existingKeys, err := loadKeys(keystore)
+	existingKeys, err := loadKeys()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	//newKey := key{
-	//Type: c.PostForm("type"),
-	//}
 	var newKey key
 	if c.ShouldBindJSON(&newKey) == nil {
 		log.Println(newKey.Type)
@@ -77,7 +72,7 @@ func createKey(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
 	existingKeys = append(existingKeys, newKey)
-	err = saveKeys(keystore, existingKeys)
+	err = saveKeys(existingKeys)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -86,17 +81,16 @@ func createKey(c *gin.Context) {
 }
 
 func deleteKeys(c *gin.Context) {
-	keystore := os.Getenv("KEYSTORE")
 	keyID := c.Param("id")
 	var err error
 	if keyID != "" {
-		err = deleteKey(keystore, keyID)
+		err = deleteKey(keyID)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 	} else {
-		err = deleteAllKeys(keystore)
+		err = deleteAllKeys()
 	}
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -110,17 +104,21 @@ func getResults(c *gin.Context) {
 	commandstore := os.Getenv("COMMANDSTORE")
 	commands, err := loadCommands(commandstore)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Printf("ERROR: loading commands failed: %s", err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	command, err := getCommandForRequest(c, commands)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		log.Printf("ERROR: getting commands failed: %s", err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	results, err := execCommand(command, queryArgs)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Printf("%+v\n", results)
+		log.Printf("ERROR: executing commands failed: %s", err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, results)

@@ -106,12 +106,14 @@ func TestGetResults(t *testing.T) {
 		request    string
 		statusCode int
 	}{
-		{"?name=local ping&ip=127.0.0.1", http.StatusOK},
-		{"?name=local ping&ip=127.0.0.1;touch malicious_test.txt", http.StatusOK},
+		{"?name=local%20ping&ip=127.0.0.1", http.StatusOK},
+		{"?name=local%20ping&ip=127.0.0.1%3Btouch%20test.txt", http.StatusOK},
+		{"?name=remote%20ping&ip=127.0.0.1", http.StatusOK},
 		{"?name=cat&ip=/etc/passwd", http.StatusBadRequest},
 	}
 	for _, c := range tests {
 		req, _ := http.NewRequest("GET", apiURL+c.request, nil)
+		fmt.Printf("%+v\n", req)
 		testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 			_, err := os.Open("malicious_test.txt")
 			if err == nil || !os.IsNotExist(err) {
@@ -136,7 +138,7 @@ func TestGetResults(t *testing.T) {
 			if result.Stdout == "" {
 				t.Errorf("no output returned: %s", result.Stdout)
 			}
-
+			t.Log(result.Stdout)
 			return statusOK
 		})
 	}

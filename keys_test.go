@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestCreateSSHKey(t *testing.T) {
 	sshkey := key{}
@@ -15,8 +18,8 @@ func TestCreateSSHKey(t *testing.T) {
 }
 
 func TestLoadKeys(t *testing.T) {
-	keystore := "file:///keystore_test.json"
-	keys, err := loadKeys(keystore)
+	os.Setenv("KEYSTORE", "file:///keystore_test.json")
+	keys, err := loadKeys()
 	if err != nil {
 		t.Error(err.Error())
 	}

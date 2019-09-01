@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/url"
+	"os"
 
 	"github.com/rs/xid"
 	"golang.org/x/crypto/ssh"
@@ -23,7 +24,8 @@ type key struct {
 	PrivateKeyFilename string
 }
 
-func loadKeys(keystore string) ([]key, error) {
+func loadKeys() ([]key, error) {
+	keystore := os.Getenv("KEYSTORE")
 	if keystore == "" {
 		return []key{}, errors.New("KEYSTORE environment variable must be defined on the server")
 	}
@@ -36,7 +38,8 @@ func loadKeys(keystore string) ([]key, error) {
 	}
 }
 
-func saveKeys(keystore string, keys []key) error {
+func saveKeys(keys []key) error {
+	keystore := os.Getenv("KEYSTORE")
 	if keystore == "" {
 		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
@@ -49,7 +52,8 @@ func saveKeys(keystore string, keys []key) error {
 	}
 }
 
-func deleteAllKeys(keystore string) error {
+func deleteAllKeys() error {
+	keystore := os.Getenv("KEYSTORE")
 	if keystore == "" {
 		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
@@ -62,7 +66,8 @@ func deleteAllKeys(keystore string) error {
 	}
 }
 
-func deleteKey(keystore string, id string) error {
+func deleteKey(id string) error {
+	keystore := os.Getenv("KEYSTORE")
 	if keystore == "" {
 		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
@@ -144,4 +149,16 @@ func storeKey(keyBytes []byte, newkey key) error {
 	}
 	log.Printf("Key saved to: %s", newkey.PrivateKeyFilename)
 	return nil
+}
+
+func getAllPrivateKeyFilenames() ([]string, error) {
+	keyfilenames := []string{}
+	keys, err := loadKeys()
+	if err != nil {
+		return keyfilenames, nil
+	}
+	for _, k := range keys {
+		keyfilenames = append(keyfilenames, k.PrivateKeyFilename)
+	}
+	return keyfilenames, nil
 }

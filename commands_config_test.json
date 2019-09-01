@@ -1,11 +1,14 @@
 [{
     "name": "remote ping",
-    "cmd":  "ping",
-    "user": "nwebb",
-    "host": "172.16.100.69",
-    "params": "ping -c 4 {{.ip}}"
+    "cmd":  "hostname",
+    "user": "nathan",
+    "host": "192.168.2.6"
 }, {
     "name": "local ping",
     "cmd": "ping",
     "params": "-c 4 {{.ip}}"
+}, {
+    "name": "quiet ping",
+    "cmd": "ping",
+    "params": "-q -c 4 {{.ip}}"
 }]

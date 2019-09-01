@@ -22,7 +22,7 @@ var cases = []testCases{
 			Cmd:    "ping",
 			Params: "-c 4 {{.ip}}",
 		},
-		expected: []string{"-c 4 127.0.0.1"},
+		expected: []string{"-c", "4", "127.0.0.1"},
 	}, {
 		args: map[string][]string{
 			"name": []string{"local ping"},
@@ -33,7 +33,7 @@ var cases = []testCases{
 			Cmd:    "ping",
 			Params: " -c 4",
 		},
-		expected: []string{" -c 4"},
+		expected: []string{"-c", "4"},
 	}, {
 		args: map[string][]string{
 			"name": []string{"local ping"},
@@ -43,7 +43,7 @@ var cases = []testCases{
 			Cmd:    "ping",
 			Params: "{{.ip}} -c 4",
 		},
-		expected: []string{" -c 4"},
+		expected: []string{},
 	},
 }
 
@@ -71,11 +71,16 @@ func TestCommandsParsing(t *testing.T) {
 func TestParseArgs(t *testing.T) {
 	for _, c := range cases {
 		args, err := parseArgs(c.cmd, c.args)
-		if err != nil {
+		if len(c.expected) > 0 && err != nil {
 			t.Errorf("error parsing query args: %s", err.Error())
 		}
 		if len(args) != len(c.expected) {
-			t.Errorf("wrong args from parseArgs. Got %s, expected %s", args, c.expected)
+			t.Errorf("wrong args from parseArgs. Got %s (length: %d), expected %s (length: %d)", args, len(args), c.expected, len(c.expected))
+		}
+		for k, v := range args {
+			if v != c.expected[k] {
+				t.Errorf("wrong arg. Expected %s, got %s", v, c.expected[k])
+			}
 		}
 	}
 }
@@ -117,6 +122,22 @@ func TestExecCommand(t *testing.T) {
 		}
 		if idx > 0 && cmd.Stderr == "" {
 			t.Errorf("failed to get error from command number: %d", idx)
+		}
+	}
+}
+
+func TestLoadCommands(t *testing.T) {
+	uris := []string{"commands_config_test.json", "file:///commands_config_test.json"}
+	for _, u := range uris {
+		cmds, err := loadCommands(u)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		if len(cmds) == 0 {
+			t.Error("failed to load any commands")
+		}
+		if cmds[0].Name != "remote ping" {
+			t.Errorf("wrong name. expected 'remote ping', got %s", cmds[0].Name)
 		}
 	}
 }
