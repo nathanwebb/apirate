@@ -31,3 +31,26 @@ func TestLoadKeys(t *testing.T) {
 func TestSaveKey(t *testing.T) {
 
 }
+
+func TestDeleteKeys(t *testing.T) {
+	keyfile := "keystore_test.json"
+	os.Setenv("KEYSTORE", "file:///"+keyfile)
+	keys := []key{{
+		ID:                 "2",
+		Type:               "ssh",
+		PublicKey:          "rsa-ssh...",
+		PrivateKeyFilename: "id_rsa_test_3",
+	}}
+	err := saveKeys(keys)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	err = deleteAllKeys()
+	if err != nil {
+		t.Errorf("failed to delete keys: %s", err.Error())
+	}
+	_, err = os.Open(keyfile)
+	if err == nil || !os.IsNotExist(err) {
+		t.Errorf("able to remove keystore: %s", err.Error())
+	}
+}

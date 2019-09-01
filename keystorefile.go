@@ -44,7 +44,8 @@ func deleteAllKeysFromFile(keyfile string) error {
 			return errors.New(fmt.Sprintf("failed to remove private key %s: %s", k.PrivateKeyFilename, err.Error()))
 		}
 	}
-	err = os.Remove(keyfile)
+	keypath := filepath.Join(".", keyfile)
+	err = os.Remove(keypath)
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to remove keystore %s: %s", keyfile, err.Error()))
 	}
