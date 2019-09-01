@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/rs/xid"
@@ -107,7 +108,7 @@ func createSSHKey(newkey key) (key, error) {
 }
 
 func generateKeyFilename(newkey key) string {
-	return newkey.ID + "_id_rsa"
+	return filepath.Join("keys", newkey.ID+"_id_rsa")
 }
 
 func generatePrivateKey(bitSize int) (*rsa.PrivateKey, error) {
