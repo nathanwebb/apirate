@@ -1,6 +1,6 @@
-package main
-
 // Credits: https://gist.github.com/devinodaniel/8f9b8a4f31573f428f29ec0e884e6673
+
+package main
 
 import (
 	"crypto/rand"
@@ -8,10 +8,12 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/rs/xid"
 	"golang.org/x/crypto/ssh"
@@ -92,14 +94,14 @@ func createSSHKey(newkey key) (key, error) {
 	newkey.Type = "ssh"
 	newkey.ID = xid.New().String()
 	newkey.PrivateKeyFilename = generateKeyFilename(newkey)
-	publicKeyBytes, err := generatePublicKey(&privateKey.PublicKey)
+
+	err = addPublicKey(privateKey.PublicKey, &newkey)
 	if err != nil {
-		log.Fatal(err.Error())
+		return newkey, err
 	}
-	newkey.PublicKey = string([]byte(publicKeyBytes))
 	err = storeKey(privateKeyBytes, newkey)
 	if err != nil {
-		log.Fatal(err.Error())
+		return newkey, err
 	}
 	return newkey, err
 }
@@ -132,9 +134,21 @@ func encodePrivateKeyToPEM(privateKey *rsa.PrivateKey) []byte {
 	return privatePEM
 }
 
-func generatePublicKey(privatekey *rsa.PublicKey) ([]byte, error) {
-	publicRsaKey, err := ssh.NewPublicKey(privatekey)
+func addPublicKey(publicKey rsa.PublicKey, newkey *key) error {
+	publicKeyBytes, err := generatePublicKey(publicKey)
 	if err != nil {
+		return err
+	}
+	publicKeyString := string([]byte(publicKeyBytes))
+	publicKeyString = strings.TrimSuffix(publicKeyString, "\n")
+	newkey.PublicKey = publicKeyString + fmt.Sprintf(" %s@apirate", newkey.ID)
+	return nil
+}
+
+func generatePublicKey(publicKey rsa.PublicKey) ([]byte, error) {
+	publicRsaKey, err := ssh.NewPublicKey(&publicKey)
+	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 	pubKeyBytes := ssh.MarshalAuthorizedKey(publicRsaKey)
