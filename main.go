@@ -24,8 +24,8 @@ func setDefaultEnv() {
 		key   string
 		value string
 	}{
-		{"KEYSTORE", "file:///default_keystore.json"},
-		{"COMMANDSTORE", "file:///default_commandstore.json"},
+		{"KEYSTORE", "file:///var/local/apirate/default_keystore.json"},
+		{"COMMANDSTORE", "file:///var/local/apirate/default_commandstore.json"},
 	}
 	for _, v := range vars {
 		if tv := os.Getenv(v.key); tv == "" {
