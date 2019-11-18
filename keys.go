@@ -108,7 +108,15 @@ func createSSHKey(newkey key) (key, error) {
 }
 
 func generateKeyFilename(newkey key) string {
-	return filepath.Join("keys", newkey.ID+"_id_rsa")
+	keystore := os.Getenv("KEYSTORE")
+	k, err := url.ParseRequestURI(keystore)
+	if err != nil || k.Scheme == "mongo" {
+		k.Scheme = "file"
+		k.Path = "/var/local/apirate/"
+	}
+	k.Path = filepath.Join(k.Path, "keys")
+	os.MkdirAll(k.Path, 0700)
+	return filepath.Join(k.Path, newkey.ID+"_id_rsa")
 }
 
 func generatePrivateKey(bitSize int) (*rsa.PrivateKey, error) {
