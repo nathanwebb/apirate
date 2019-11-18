@@ -8,7 +8,7 @@ Apirate can be used to add a REST API to either local commands, or remote comman
 * better responses, especially error messages and status codes in json responses
 * https
 * Dockerfile
-* mongodb storage
+* mongodb storage - to allow for shared credentials
 * ability to set environment variables
 
 ## Usage

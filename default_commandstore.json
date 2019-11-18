@@ -1,0 +1,15 @@
+[{
+    "name": "remote ping",
+    "cmd":  "ping",
+    "user": "nathan",
+    "host": "192.168.2.6",
+    "params": "-c 4 {{.ip}}"
+}, {
+    "name": "local ping",
+    "cmd": "ping",
+    "params": "-c 4 {{.ip}}"
+}, {
+    "name": "quiet ping",
+    "cmd": "ping",
+    "params": "-q -c 4 {{.ip}}"
+}]
