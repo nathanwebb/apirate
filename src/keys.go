@@ -110,9 +110,14 @@ func createSSHKey(newkey key) (key, error) {
 func generateKeyFilename(newkey key) string {
 	keystore := os.Getenv("KEYSTORE")
 	k, err := url.ParseRequestURI(keystore)
+	log.Println(k.Path)
 	if err != nil || k.Scheme == "mongo" {
 		k.Scheme = "file"
 		k.Path = "/var/local/apirate/"
+	} else if k.Path == "" {
+		k.Path = "."
+	} else {
+		k.Path = filepath.Dir(k.Path)
 	}
 	k.Path = filepath.Join(k.Path, "keys")
 	os.MkdirAll(k.Path, 0700)

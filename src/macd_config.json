@@ -1,0 +1,13 @@
+[{
+    "name": "remote ping",
+    "cmd":  "ssh",
+    "user": "connect",
+    "host": "192.168.188.69",
+    "params": "{{.dgexname}} ping -c 4 {{.ip}}"
+}, {
+    "name": "probeSnmpTests",
+    "cmd": "ssh",
+    "user": "connect",
+    "host": "192.168.188.69",
+    "params": "{{.dgexname}} /traverse/utils/probeSnmpTests.pl --host={{.ip}} --community={{.commstring}} --version={{.snmpversion}} {{if eq .snmpversion 3}} --authproto{{.authproto}} --privprot{{.privproto}}{{end}}"
+}]

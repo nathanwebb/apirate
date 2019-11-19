@@ -19,7 +19,8 @@ func initialiseRoutes(router *gin.Engine) {
 	keysRoutes.POST("/", createKey)
 	keysRoutes.DELETE("/", deleteKeys)
 	keysRoutes.DELETE("/:id", deleteKeys)
-	router.GET(basePath+"/results", getResults)
+	resultsRoutes := router.Group(basePath + "/results")
+	resultsRoutes.GET("/", getResults)
 }
 
 func getKeys(c *gin.Context) {

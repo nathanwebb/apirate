@@ -14,9 +14,14 @@ func init() {
 }
 
 func main() {
+	printWelcome()
 	router := gin.Default()
 	initialiseRoutes(router)
 	router.Run()
+}
+
+func printWelcome() {
+	fmt.Println("Apirate... Starting")
 }
 
 func setDefaultEnv() {
