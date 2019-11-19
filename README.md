@@ -7,7 +7,6 @@ Apirate can be used to add a REST API to either local commands, or remote comman
 * Authentication/authorization
 * better responses, especially error messages and status codes in json responses
 * https
-* Dockerfile
 * mongodb storage - to allow for shared credentials
 * ability to set environment variables
 
@@ -81,29 +80,3 @@ GET /results/?command=probeSnmpTests&
     name: "writeConnect",
     exec: "ssh connect@192.168.188.69 /scripts/connect/appendToConf.sh {{devicename}} {{deviceip}} {{password}} {{enable}}"
 }
-
-
-[nwebb@imcdgex39 ~]$ /traverse/utils/probeSnmpTests.pl
-ERROR: no device name or input file name has been provided
-
-  usage: probeSnmpTests.pl --host=<fqdn|ip_address>
-         [ --community=<community_string> ]      [ --version=<1|2|3> ]
-         [ --authproto=<none|md5|sha> ] [ --privproto=<none|des|aes> ]
-         [ --type=<windows|unix|router|switch|firewall|slb|unknown>  ]
-         [ --runtime=<seconds> ] [ --help ] [ remote_execution_options ]
-
-  --host      = host name or ip address of device to probe
-  --community = snmp community string (user:password:secret for version=3)
-  --version   = snmp version supported by device
-  --authproto = snmp agent authentication protocol        (only version=3)
-  --privproto = snmp agent privary protocol               (only version=3)
-  --type      = type of device being probed
-  --runtime     = amount of time to run before terminating (def. 900 seconds)
-  --help      = print this help message
-
-  for remote execution via internal communication bus:
-
-  --remote    = perform discovery on specified remote dge/dge extension
-  --username  = login id with superuser privileges    (required parameter)
-  --password  = password for specified login user     (required parameter)
-  --endpoint  = fqdn or ip address of web application (default=localhost)
