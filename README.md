@@ -17,10 +17,10 @@ To get started, you will need to create a commands file. This file is a JSON doc
 ### Example: default_commandstore.json
 ```
 [{
-    "name": "remote ping",
+    "name": "remote command",
     "cmd":  "hostname",
     "user": "nathan",
-    "host": "192.168.2.6"
+    "host": "192.168.1.1"
 }, {
     "name": "local ping",
     "cmd": "ping",
