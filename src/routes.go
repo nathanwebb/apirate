@@ -62,7 +62,7 @@ func createKey(c *gin.Context) {
 		log.Println(newKey.Type)
 	}
 	switch newKey.Type {
-	case "ssh":
+	case "ssh", "":
 		newKey, err = createSSHKey(newKey)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
@@ -71,7 +71,9 @@ func createKey(c *gin.Context) {
 	default:
 		err = errors.New("invalid key type. Type must be 'ssh'")
 		c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
+	log.Println("running this section")
 	existingKeys = append(existingKeys, newKey)
 	err = saveKeys(existingKeys)
 	if err != nil {
@@ -117,10 +119,8 @@ func getResults(c *gin.Context) {
 	}
 	results, err := execCommand(command, queryArgs)
 	if err != nil {
-		log.Printf("%+v\n", results)
-		log.Printf("ERROR: executing commands failed: %s", err.Error())
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
+		log.Println(err.Error())
+		results.Error = err.Error()
 	}
 	c.JSON(http.StatusOK, results)
 }

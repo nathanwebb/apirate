@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -14,6 +14,7 @@ import (
 )
 
 func TestGetKeysWithoutKeystoreFails(t *testing.T) {
+	os.Setenv("KEYSTORE", "")
 	req, r := GetKeysWithKeystore(t, "")
 	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 		statusBad := w.Code != http.StatusOK
@@ -22,7 +23,10 @@ func TestGetKeysWithoutKeystoreFails(t *testing.T) {
 }
 
 func TestGetKeysWithKeystore(t *testing.T) {
-	os.Setenv("KEYSTORE", "file:///keystore_test.json")
+	err := createTestKeyStore("keystore_test.json")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	req, r := GetKeysWithKeystore(t, "")
 	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 		p, err := ioutil.ReadAll(w.Body)
@@ -32,13 +36,13 @@ func TestGetKeysWithKeystore(t *testing.T) {
 		keys := []key{}
 		err = json.Unmarshal(p, &keys)
 		if err != nil {
-			t.Error(err.Error())
+			t.Fatal(err.Error())
 		}
 		if len(keys) == 0 {
-			t.Error("no keys returned")
+			t.Fatal("no keys returned")
 		}
 		if keys[0].Type != "ssh" {
-			t.Errorf("incorrect keys returned")
+			t.Fatal("incorrect keys returned")
 		}
 
 		statusOK := w.Code == http.StatusOK
@@ -47,7 +51,10 @@ func TestGetKeysWithKeystore(t *testing.T) {
 }
 
 func TestGetSingleKeyWithKeystore(t *testing.T) {
-	os.Setenv("KEYSTORE", "file:///keystore_test.json")
+	err := createTestKeyStore("keystore_test.json")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	req, r := GetKeysWithKeystore(t, "2")
 	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 		p, err := ioutil.ReadAll(w.Body)
@@ -70,7 +77,7 @@ func TestGetSingleKeyWithKeystore(t *testing.T) {
 
 func TestCreateKeys(t *testing.T) {
 	keyfile := "keystore_test_dummy.json"
-	os.Setenv("KEYSTORE", "file:///"+keyfile)
+	os.Setenv("KEYSTORE", keyfile)
 	apiurl := "/api/v1/keys"
 
 	router := gin.Default()
@@ -79,7 +86,6 @@ func TestCreateKeys(t *testing.T) {
 	newKey := []byte(`{"type": "ssh"}`)
 	req, _ := http.NewRequest("POST", apiurl, bytes.NewBuffer(newKey))
 	req.Header.Set("Content-Type", "application/json")
-	fmt.Printf("%+v\n", req)
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -108,12 +114,10 @@ func TestGetResults(t *testing.T) {
 	}{
 		{"?name=local%20ping&ip=127.0.0.1", http.StatusOK},
 		{"?name=local%20ping&ip=127.0.0.1%3Btouch%20test.txt", http.StatusOK},
-		{"?name=remote%20ping&ip=127.0.0.1", http.StatusOK},
 		{"?name=cat&ip=/etc/passwd", http.StatusBadRequest},
 	}
 	for _, c := range tests {
 		req, _ := http.NewRequest("GET", apiURL+c.request, nil)
-		fmt.Printf("%+v\n", req)
 		testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 			_, err := os.Open("malicious_test.txt")
 			if err == nil || !os.IsNotExist(err) {
@@ -123,6 +127,7 @@ func TestGetResults(t *testing.T) {
 			if !statusOK {
 				t.Errorf("expected status code: %d, got %d", c.statusCode, w.Code)
 			}
+			log.Println(c.statusCode)
 			if c.statusCode != http.StatusOK {
 				return statusOK
 			}
@@ -135,8 +140,8 @@ func TestGetResults(t *testing.T) {
 			if err != nil {
 				t.Error(err.Error())
 			}
-			if result.Stdout == "" {
-				t.Errorf("no output returned: %s", result.Stdout)
+			if result.Stdout == "" && result.Stderr == "" {
+				t.Errorf("no output returned: %s", result.Name)
 			}
 			t.Log(result.Stdout)
 			return statusOK

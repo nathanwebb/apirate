@@ -5,7 +5,19 @@ import (
 	"testing"
 )
 
+func createTestKeyStore(keyfile string) error {
+	os.Setenv("KEYSTORE", "file:///"+keyfile)
+	keys := []key{{
+		ID:                 "2",
+		Type:               "ssh",
+		PublicKey:          "rsa-ssh...",
+		PrivateKeyFilename: "id_rsa_test_3",
+	}}
+	return saveKeys(keys)
+}
+
 func TestCreateSSHKey(t *testing.T) {
+	os.Setenv("KEYSTORE", "keystore_test.json")
 	sshkey := key{}
 	sshkey, err := createSSHKey(sshkey)
 	if err != nil {
@@ -18,12 +30,15 @@ func TestCreateSSHKey(t *testing.T) {
 }
 
 func TestLoadKeys(t *testing.T) {
-	os.Setenv("KEYSTORE", "file:///keystore_test.json")
+	err := createTestKeyStore("keystore_test.json")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	keys, err := loadKeys()
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if len(keys) == 0 || keys[0].ID != "1" {
+	if len(keys) == 0 || keys[0].ID != "2" {
 		t.Errorf("failed to load keys")
 	}
 }
@@ -34,14 +49,7 @@ func TestSaveKey(t *testing.T) {
 
 func TestDeleteKeys(t *testing.T) {
 	keyfile := "keystore_test.json"
-	os.Setenv("KEYSTORE", "file:///"+keyfile)
-	keys := []key{{
-		ID:                 "2",
-		Type:               "ssh",
-		PublicKey:          "rsa-ssh...",
-		PrivateKeyFilename: "id_rsa_test_3",
-	}}
-	err := saveKeys(keys)
+	err := createTestKeyStore(keyfile)
 	if err != nil {
 		t.Error(err.Error())
 	}

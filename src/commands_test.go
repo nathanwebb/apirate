@@ -53,17 +53,17 @@ func TestCommandsParsing(t *testing.T) {
 		output   string
 		url      string
 	}{{
-		template: "ssh connect@192.168.188.69 ssh {{dgexname}} ping {{deviceip}}",
-		output:   "ssh connect@192.168.188.69 ssh imcdgex39 ping 127.0.0.1",
-		url:      "GET /results/?command=ping&dgexname=imcdgex39&ping=127.0.0.1",
+		template: "ssh connect@192.168.1.9 ssh {{dgexname}} ping {{deviceip}}",
+		output:   "ssh connect@192.168.1.9 ssh dgex1 ping 127.0.0.1",
+		url:      "GET /results/?command=ping&dgexname=dgex1&ping=127.0.0.1",
 	}, {
-		template: "ssh connect@192.168.188.69 ssh {{dgexname}} /traverse/utils/probeSnmpTests.pl --host={{deviceIP}} --community={{commstring}} --version={{snmpversion}} {{if eq snmpversion 3}}--authproto{{authproto}} --privprot{{privproto}}{{end}}",
-		output:   "ssh connect@192.168.188.69 ssh imcdgex39 /traverse/utils/probeSnmpTests.pl --host=127.0.0.1 --community=public --version=2",
-		url:      "GET /results/?command=/traverse/utils/probeSnmpTests.pl&dgexname=imcdgex39&deviceip=127.0.0.1&commstring=public&snmpversion=2",
+		template: "ssh connect@192.168.1.9 ssh {{dgexname}} snmp.pl --host={{deviceIP}} --community={{commstring}} --version={{snmpversion}} {{if eq snmpversion 3}}--authproto{{authproto}} --privprot{{privproto}}{{end}}",
+		output:   "ssh connect@192.168.1.9 ssh dgex1 snmp.pl --host=127.0.0.1 --community=public --version=2",
+		url:      "GET /results/?command=snmp.pl&dgexname=dgex1&deviceip=127.0.0.1&commstring=public&snmpversion=2",
 	}, {
-		template: "ssh connect@192.168.188.69 ssh {{dgexname}} /traverse/utils/probeSnmpTests.pl --host={{deviceIP}} --community={{commstring}} --version={{snmpversion}} {{if eq snmpversion 3}}--authproto{{authproto}} --privprot{{privproto}}{{end}}",
-		output:   "ssh connect@192.168.188.69 ssh imcdgex39 /traverse/utils/probeSnmpTests.pl --host=127.0.0.1 --community=public --version=3 --authproto=sha --privproto=aes",
-		url:      "GET /results/?command=/traverse/utils/probeSnmpTests.pl&dgexname=imcdgex39&deviceip=127.0.0.1&commstring=rits:pub:lic&snmpversion=3&authproto=sha&privprot=aes",
+		template: "ssh connect@192.168.1.9 ssh {{dgexname}} snmp.pl --host={{deviceIP}} --community={{commstring}} --version={{snmpversion}} {{if eq snmpversion 3}}--authproto{{authproto}} --privprot{{privproto}}{{end}}",
+		output:   "ssh connect@192.168.1.9 ssh dgex1 snmp.pl --host=127.0.0.1 --community=public --version=3 --authproto=sha --privproto=aes",
+		url:      "GET /results/?command=snmp.pl&dgexname=dgex1&deviceip=127.0.0.1&commstring=apirate:pub:lic&snmpversion=3&authproto=sha&privprot=aes",
 	}}
 	fmt.Println(commands)
 }
@@ -127,7 +127,7 @@ func TestExecCommand(t *testing.T) {
 }
 
 func TestLoadCommands(t *testing.T) {
-	uris := []string{"commands_config_test.json", "file:///commands_config_test.json"}
+	uris := []string{"commands_config_test.json", "commands_config_test.json"}
 	for _, u := range uris {
 		cmds, err := loadCommands(u)
 		if err != nil {
@@ -136,8 +136,8 @@ func TestLoadCommands(t *testing.T) {
 		if len(cmds) == 0 {
 			t.Error("failed to load any commands")
 		}
-		if cmds[0].Name != "remote ping" {
-			t.Errorf("wrong name. expected 'remote ping', got %s", cmds[0].Name)
+		if cmds[0].Name != "local ping" {
+			t.Errorf("wrong name. expected 'local ping', got %s", cmds[0].Name)
 		}
 	}
 }

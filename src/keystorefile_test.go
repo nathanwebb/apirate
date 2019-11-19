@@ -7,11 +7,15 @@ import (
 
 func TestLoadKeysFromFile(t *testing.T) {
 	keyfile := "keystore_test.json"
+	err := createTestKeyStore(keyfile)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	keys, err := loadKeysFromFile(keyfile)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
-	if len(keys) == 0 || keys[0].ID != "1" {
+	if len(keys) == 0 || keys[0].ID != "2" {
 		t.Errorf("failed to load keys")
 	}
 }
@@ -54,13 +58,10 @@ func TestSaveKeyToFile(t *testing.T) {
 
 func TestDeleteAllKeys(t *testing.T) {
 	keyfile := "keys_test.json"
-	keys := []key{{
-		ID:                 "2",
-		Type:               "ssh",
-		PublicKey:          "rsa-ssh...",
-		PrivateKeyFilename: "id_rsa_test_3",
-	}}
-	err := saveKeysToFile(keyfile, keys)
+	err := createTestKeyStore(keyfile)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	if err != nil {
 		t.Error(err.Error())
 	}

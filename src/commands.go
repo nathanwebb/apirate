@@ -26,6 +26,7 @@ type command struct {
 	Stdout   string `json:"stdout"`
 	Stderr   string `json:"stderr"`
 	ExitCode int    `json:"exitcode"`
+	Error    string
 }
 
 func loadCommands(source string) ([]command, error) {
@@ -51,7 +52,7 @@ func getCommandForRequest(c *gin.Context, commands []command) (command, error) {
 
 func execCommand(cmd command, queryArgs map[string][]string) (command, error) {
 	args, err := parseArgs(cmd, queryArgs)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "map has no entry for key") {
 		return command{}, err
 	}
 	if cmd.Host == "" {
@@ -63,7 +64,6 @@ func execCommand(cmd command, queryArgs map[string][]string) (command, error) {
 
 func execLocalCommand(cmd command, args []string) (command, error) {
 	cmdToRun := exec.Command(cmd.Cmd, args...)
-	fmt.Printf("%+v\n", cmdToRun)
 	var stdout, stderr bytes.Buffer
 	cmdToRun.Stdout = &stdout
 	cmdToRun.Stderr = &stderr

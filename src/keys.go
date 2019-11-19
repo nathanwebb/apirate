@@ -32,7 +32,13 @@ func loadKeys() ([]key, error) {
 	if keystore == "" {
 		return []key{}, errors.New("KEYSTORE environment variable must be defined on the server")
 	}
-	k, _ := url.ParseRequestURI(keystore)
+	k, err := url.Parse(keystore)
+	if err != nil {
+		return []key{}, err
+	}
+	if k == nil {
+		return []key{}, errors.New("Invalid KEYSTORE format. Please ensure that it is in URI format")
+	}
 	switch k.Scheme {
 	case "mongo":
 		return loadKeysFromMongo(keystore)
@@ -46,7 +52,7 @@ func saveKeys(keys []key) error {
 	if keystore == "" {
 		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
-	k, _ := url.ParseRequestURI(keystore)
+	k, _ := url.Parse(keystore)
 	switch k.Scheme {
 	case "mongo":
 		return saveKeysToMongo(keystore, keys)
@@ -60,7 +66,7 @@ func deleteAllKeys() error {
 	if keystore == "" {
 		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
-	k, _ := url.ParseRequestURI(keystore)
+	k, _ := url.Parse(keystore)
 	switch k.Scheme {
 	case "mongo":
 		return deleteAllKeysFromMongo(keystore)
@@ -74,7 +80,7 @@ func deleteKey(id string) error {
 	if keystore == "" {
 		return errors.New("KEYSTORE environment variable must be defined on the server")
 	}
-	k, _ := url.ParseRequestURI(keystore)
+	k, _ := url.Parse(keystore)
 	switch k.Scheme {
 	case "mongo":
 		return deleteKeyFromMongo(keystore, id)
@@ -109,7 +115,7 @@ func createSSHKey(newkey key) (key, error) {
 
 func generateKeyFilename(newkey key) string {
 	keystore := os.Getenv("KEYSTORE")
-	k, err := url.ParseRequestURI(keystore)
+	k, err := url.Parse(keystore)
 	log.Println(k.Path)
 	if err != nil || k.Scheme == "mongo" {
 		k.Scheme = "file"
