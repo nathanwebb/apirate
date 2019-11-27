@@ -88,17 +88,25 @@ func execRemoteCommand(cmd command, args []string) (command, error) {
 	if err != nil {
 		return command{}, err
 	}
-	cmdToRun, err := conn.NewSession()
-	defer cmdToRun.Close()
+	session, err := conn.NewSession()
+	defer session.Close()
 	if err != nil {
 		return command{}, err
 	}
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          0,
+		ssh.TTY_OP_ISPEED: 14400,
+		ssh.TTY_OP_OSPEED: 14400,
+	}
+	if err := session.RequestPty("xterm", 40, 80, modes); err != nil {
+		log.Fatal("request for pseudo terminal failed: ", err)
+	}
 
 	var stdout, stderr bytes.Buffer
-	cmdToRun.Stdout = &stdout
-	cmdToRun.Stderr = &stderr
+	session.Stdout = &stdout
+	session.Stderr = &stderr
 	log.Println(cmd.Cmd)
-	err = cmdToRun.Run(cmd.Cmd + " " + strings.Join(args, " "))
+	err = session.Run(cmd.Cmd + " " + strings.Join(args, " "))
 	cmd.Stdout = stdout.String()
 	cmd.Stderr = stderr.String()
 	log.Println(cmd.Stderr)

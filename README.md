@@ -37,19 +37,40 @@ For the remote (ssh-based) commands, apirate can generate a key and send you the
 Then just start apirate, and send it some commands:
 
 ```
-curl "http://localhost:8080/api/v1/results?name=remote%20ping&ip=192.168.2.6"
+curl "http://localhost:8080/api/v1/results?name=local%20ping&ip=192.168.2.6"
 ```
 
 ## Installation
 
-there are three ways that it can be used.
+Here are three ways that it can be used.
 
 1. Inside a docker container.
 ```
 docker run --rm -p 8080:8080 crasily/apirate
 ```
 
-2. Stand-alone
+2. using Docker Compose (or Swarm)
+```
+version: '3.6'
+services:
+  apirate:
+    image: crasily/apirate
+    ports:
+      - "8080:8080"
+    configs:
+      - apirate_v1:/var/local/apirate/default_commandstore.json
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - stores:/var/local/apirate/
+volumes:
+  stores:
+    driver: local
+configs:
+  apirate_v1:
+    file: ./default_commandstore.json
+```
+
+3. Stand-alone
 This can be accomplished by downloading the repo from github, building with Go-lang, and then running the installation script.
 
 
