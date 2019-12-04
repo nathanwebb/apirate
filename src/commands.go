@@ -88,6 +88,7 @@ func execRemoteCommand(cmd command, args []string) (command, error) {
 	if err != nil {
 		return command{}, err
 	}
+	defer conn.Close()
 	session, err := conn.NewSession()
 	defer session.Close()
 	if err != nil {
