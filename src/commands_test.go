@@ -79,7 +79,7 @@ func TestParseArgs(t *testing.T) {
 		}
 		for k, v := range args {
 			if v != c.expected[k] {
-				t.Errorf("wrong arg. Expected %s, got %s", v, c.expected[k])
+				t.Errorf("wrong arg. Got %s, expected %s", v, c.expected[k])
 			}
 		}
 	}

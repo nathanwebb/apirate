@@ -84,6 +84,6 @@ There are two json files that are managed by Apirate - the keystore and the comm
 
 
 * security - how to authenticate REST APIs, does this override command permissions
-* tainted inputs - DONE. Inputs are escaped before passing onto commands
+* tainted inputs - add single quotes around all template variables
 
 

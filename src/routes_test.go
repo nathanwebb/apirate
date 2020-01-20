@@ -113,7 +113,8 @@ func TestGetResults(t *testing.T) {
 		statusCode int
 	}{
 		{"?name=local%20ping&ip=127.0.0.1", http.StatusOK},
-		{"?name=local%20ping&ip=127.0.0.1%3Btouch%20test.txt", http.StatusOK},
+		{"?name=local%20ping&ip=127.0.0.1%26%26touch%20malicious_test.txt", http.StatusOK},
+		{"?name=local%20ping&ip=127.0.0.1%3Btouch%20malicious_test.txt", http.StatusOK},
 		{"?name=cat&ip=/etc/passwd", http.StatusBadRequest},
 	}
 	for _, c := range tests {

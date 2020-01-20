@@ -51,25 +51,33 @@ func getCommandForRequest(c *gin.Context, commands []command) (command, error) {
 }
 
 func execCommand(cmd command, queryArgs map[string][]string) (command, error) {
-	args, err := parseArgs(cmd, queryArgs)
+	argsCopy := queryArgs
+	fn := execLocalCommand
+	if cmd.Host != "" {
+		fn = execRemoteCommand
+		argsCopy = escapeArgs(queryArgs)
+	}
+	args, err := parseArgs(cmd, argsCopy)
 	if err != nil && !strings.Contains(err.Error(), "map has no entry for key") {
 		return command{}, err
 	}
-	if cmd.Host == "" {
-		return execLocalCommand(cmd, args)
-	} else {
-		return execRemoteCommand(cmd, args)
-	}
+	log.Println(args)
+	return fn(cmd, args)
 }
 
 func execLocalCommand(cmd command, args []string) (command, error) {
+	log.Printf("%+v\n", cmd)
+	log.Printf("%+v\n", args)
 	cmdToRun := exec.Command(cmd.Cmd, args...)
+	log.Printf("%+v\n", cmdToRun)
 	var stdout, stderr bytes.Buffer
 	cmdToRun.Stdout = &stdout
 	cmdToRun.Stderr = &stderr
 	err := cmdToRun.Run()
 	cmd.Stdout = stdout.String()
 	cmd.Stderr = stderr.String()
+	log.Printf("%+v\n", cmd)
+
 	return cmd, err
 }
 
@@ -144,16 +152,14 @@ func makeSigner(path string) (ssh.AuthMethod, error) {
 
 func parseArgs(cmd command, queryArgs map[string][]string) ([]string, error) {
 	buf := new(bytes.Buffer)
+	//escapedArgs := escapeArgs(queryArgs)
+	//flatArgs := flatten(escapedArgs)
 	flatArgs := flatten(queryArgs)
 	t := template.Must(template.New("t2").Parse(cmd.Params))
 	t.Option("missingkey=error")
 	err := t.Execute(buf, flatArgs)
 	args := strings.Fields(buf.String())
-	response := []string{}
-	for _, s := range args {
-		response = append(response, shellescape.Quote(s))
-	}
-	return response, err
+	return args, err
 }
 
 func flatten(queryArgs map[string][]string) map[string]interface{} {
@@ -166,4 +172,14 @@ func flatten(queryArgs map[string][]string) map[string]interface{} {
 		}
 	}
 	return flat
+}
+
+func escapeArgs(args map[string][]string) map[string][]string {
+	escaped := make(map[string][]string, len(args))
+	for i, a := range args {
+		for _, s := range a {
+			escaped[i] = append(escaped[i], "'"+shellescape.Quote(s)+"'")
+		}
+	}
+	return escaped
 }
