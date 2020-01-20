@@ -179,7 +179,8 @@ func escapeArgs(args map[string][]string) map[string][]string {
 		for _, s := range a {
 			log.Println(s)
 			log.Println(shellescape.Quote(s))
-			escaped[i] = append(escaped[i], "'"+shellescape.Quote(s)+"'")
+			//escaped[i] = append(escaped[i], "'"+shellescape.Quote(s)+"'")
+			escaped[i] = append(escaped[i], shellescape.Quote(s))
 		}
 	}
 	log.Println(escaped)
