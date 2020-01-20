@@ -152,8 +152,6 @@ func makeSigner(path string) (ssh.AuthMethod, error) {
 
 func parseArgs(cmd command, queryArgs map[string][]string) ([]string, error) {
 	buf := new(bytes.Buffer)
-	//escapedArgs := escapeArgs(queryArgs)
-	//flatArgs := flatten(escapedArgs)
 	flatArgs := flatten(queryArgs)
 	t := template.Must(template.New("t2").Parse(cmd.Params))
 	t.Option("missingkey=error")
@@ -175,11 +173,15 @@ func flatten(queryArgs map[string][]string) map[string]interface{} {
 }
 
 func escapeArgs(args map[string][]string) map[string][]string {
+	log.Println(args)
 	escaped := make(map[string][]string, len(args))
 	for i, a := range args {
 		for _, s := range a {
+			log.Println(s)
+			log.Println(shellescape.Quote(s))
 			escaped[i] = append(escaped[i], "'"+shellescape.Quote(s)+"'")
 		}
 	}
+	log.Println(escaped)
 	return escaped
 }

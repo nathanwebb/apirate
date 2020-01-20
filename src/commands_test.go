@@ -85,6 +85,25 @@ func TestParseArgs(t *testing.T) {
 	}
 }
 
+func TestQuoteArgs(t *testing.T) {
+	testArgs := map[string][]string{
+		"ip": []string{"172.16.100.4%3Btouch%20/tmp/test"},
+	}
+	cmd := command{
+		Name:   "remote ping",
+		Cmd:    "ping",
+		User:   "nwebb",
+		Host:   "172.16.100.69",
+		Params: "-c 4 {{.ip}}",
+	}
+	argsCopy := escapeArgs(testArgs)
+	args, err := parseArgs(cmd, argsCopy)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	t.Fatalf("%+v\n", args)
+}
+
 func TestFlatten(t *testing.T) {
 	inputs := []map[string][]string{
 		map[string][]string{
