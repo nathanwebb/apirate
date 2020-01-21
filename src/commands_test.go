@@ -87,7 +87,7 @@ func TestParseArgs(t *testing.T) {
 
 func TestQuoteArgs(t *testing.T) {
 	testArgs := map[string][]string{
-		"ip": []string{"172.16.100.4%3Btouch%20/tmp/test"},
+		"ip": []string{"172.16.100.4;touch /tmp/test"},
 	}
 	cmd := command{
 		Name:   "remote ping",
