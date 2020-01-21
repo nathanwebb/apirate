@@ -141,3 +141,29 @@ func TestLoadCommands(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckForTaints(t *testing.T) {
+	type testcase struct {
+		in        map[string][]string
+		untainted bool
+	}
+	cases := []testcase{
+		{
+			in: map[string][]string{
+				"a": []string{"local ping", "b", "a.b"},
+			},
+			untainted: true,
+		}, {
+			in: map[string][]string{
+				"a": []string{"a", "b", "a&b"},
+			},
+			untainted: false,
+		},
+	}
+	for _, c := range cases {
+		err := checkForTaints(c.in)
+		if c.untainted && err != nil {
+			t.Error(err.Error())
+		}
+	}
+}

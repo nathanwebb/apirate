@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/url"
 	"os/exec"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -53,7 +54,10 @@ func getCommandForRequest(c *gin.Context, commands []command) (command, error) {
 func execCommand(cmd command, queryArgs map[string][]string) (command, error) {
 	log.Printf("%+v\n", cmd)
 	log.Printf("%+v\n", queryArgs)
-
+	err := checkForTaints(queryArgs)
+	if err != nil {
+		return cmd, err
+	}
 	args, err := parseArgs(cmd, queryArgs)
 	log.Printf("%+v\n", args)
 	if err != nil && !strings.Contains(err.Error(), "map has no entry for key") {
@@ -61,9 +65,21 @@ func execCommand(cmd command, queryArgs map[string][]string) (command, error) {
 	}
 	if cmd.Host == "" {
 		return execLocalCommand(cmd, args)
-	} else {
-		return execRemoteCommand(cmd, args)
 	}
+	return execRemoteCommand(cmd, args)
+}
+
+func checkForTaints(queryArgs map[string][]string) error {
+	var err error
+	pattern := regexp.MustCompile(`[^\sa-zA-Z0-9,._+:@%/-]`)
+	for k, a := range queryArgs {
+		for _, s := range a {
+			if pattern.MatchString(s) {
+				return errors.New(k + " has tainted variable " + s)
+			}
+		}
+	}
+	return err
 }
 
 func execLocalCommand(cmd command, args []string) (command, error) {
