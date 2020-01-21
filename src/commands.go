@@ -110,7 +110,7 @@ func execRemoteCommand(cmd command, args []string) (command, error) {
 	var stdout, stderr bytes.Buffer
 	session.Stdout = &stdout
 	session.Stderr = &stderr
-	log.Println(cmd.Cmd)
+	log.Println(cmd.Cmd + " " + strings.Join(args, " "))
 	err = session.Run(cmd.Cmd + " " + strings.Join(args, " "))
 	cmd.Stdout = stdout.String()
 	cmd.Stderr = stderr.String()
