@@ -51,7 +51,11 @@ func getCommandForRequest(c *gin.Context, commands []command) (command, error) {
 }
 
 func execCommand(cmd command, queryArgs map[string][]string) (command, error) {
+	log.Printf("%+v\n", cmd)
+	log.Printf("%+v\n", queryArgs)
+
 	args, err := parseArgs(cmd, queryArgs)
+	log.Printf("%+v\n", args)
 	if err != nil && !strings.Contains(err.Error(), "map has no entry for key") {
 		return command{}, err
 	}
