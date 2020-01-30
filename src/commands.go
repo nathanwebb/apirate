@@ -88,6 +88,11 @@ func execLocalCommand(cmd command, args []string) (command, error) {
 	cmdToRun.Stdout = &stdout
 	cmdToRun.Stderr = &stderr
 	err := cmdToRun.Run()
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			cmd.ExitCode = exitError.ExitCode()
+		}
+	}
 	cmd.Stdout = stdout.String()
 	cmd.Stderr = stderr.String()
 	return cmd, err
@@ -128,6 +133,11 @@ func execRemoteCommand(cmd command, args []string) (command, error) {
 	session.Stderr = &stderr
 	log.Println(cmd.Cmd + " " + strings.Join(args, " "))
 	err = session.Run(cmd.Cmd + " " + strings.Join(args, " "))
+	if err != nil {
+		if exitError, ok := err.(*ssh.ExitError); ok {
+			cmd.ExitCode = exitError.ExitStatus()
+		}
+	}
 	cmd.Stdout = stdout.String()
 	cmd.Stderr = stderr.String()
 	log.Println(cmd.Stderr)

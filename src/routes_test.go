@@ -140,8 +140,8 @@ func TestGetResults(t *testing.T) {
 			if err != nil {
 				t.Error(err.Error())
 			}
-			if result.Stdout == "" && result.Stderr == "" {
-				t.Errorf("no output returned: %s", result.Name)
+			if result.Stdout == "" && result.Stderr == "" && result.Error == "" {
+				t.Errorf("no output returned: %s", c.request)
 			}
 			t.Log(result.Stdout)
 			return statusOK
