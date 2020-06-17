@@ -12,6 +12,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/ssh"
 	"gopkg.in/alessio/shellescape.v1"
@@ -53,7 +54,7 @@ func getCommandForRequest(c *gin.Context, commands []command) (command, error) {
 
 func execCommand(cmd command, queryArgs map[string][]string) (command, error) {
 	log.Printf("%+v\n", cmd)
-	log.Printf("%+v\n", queryArgs)
+	spew.Dump(queryArgs)
 	err := checkForTaints(queryArgs)
 	if err != nil {
 		return cmd, err
@@ -175,6 +176,7 @@ func makeSigner(path string) (ssh.AuthMethod, error) {
 func parseArgs(cmd command, queryArgs map[string][]string) ([]string, error) {
 	buf := new(bytes.Buffer)
 	flatArgs := flatten(queryArgs)
+	spew.Dump(flatArgs)
 	t := template.Must(template.New("t2").Parse(cmd.Params))
 	t.Option("missingkey=error")
 	err := t.Execute(buf, flatArgs)
