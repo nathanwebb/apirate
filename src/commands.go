@@ -71,7 +71,7 @@ func execCommand(cmd command, queryArgs map[string][]string) (command, error) {
 
 func checkForTaints(queryArgs map[string][]string) error {
 	var err error
-	pattern := regexp.MustCompile(`[^\sa-zA-Z0-9,._+:$@%/!-]`)
+	pattern := regexp.MustCompile(`[^\sa-zA-Z0-9,._+:@%/!-]`)
 	for k, a := range queryArgs {
 		for _, s := range a {
 			if pattern.MatchString(s) {
