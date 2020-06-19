@@ -175,17 +175,18 @@ func makeSigner(path string) (ssh.AuthMethod, error) {
 
 func parseArgs(cmd command, queryArgs map[string][]string) ([]string, error) {
 	buf := new(bytes.Buffer)
+	log.Println(len(queryArgs))
+	//quotedArgs := quoteArgs(queryArgs)
+	//flatArgs := flatten(quotedArgs)
 	flatArgs := flatten(queryArgs)
 	spew.Dump(flatArgs)
+
 	t := template.Must(template.New("t2").Parse(cmd.Params))
 	t.Option("missingkey=error")
 	err := t.Execute(buf, flatArgs)
-	args := strings.Fields(buf.String())
-	response := []string{}
-	for _, s := range args {
-		response = append(response, shellescape.Quote(s))
-	}
-	return response, err
+	log.Printf("%v\n", buf)
+	args := splitUnquotedSpace(buf.String())
+	return args, err
 }
 
 func flatten(queryArgs map[string][]string) map[string]interface{} {
@@ -198,4 +199,52 @@ func flatten(queryArgs map[string][]string) map[string]interface{} {
 		}
 	}
 	return flat
+}
+
+func quoteArgs(queryArgs map[string][]string) map[string][]string {
+	quoted := make(map[string][]string, len(queryArgs))
+	for k, v := range queryArgs {
+		quotedArgs := []string{}
+		for _, s := range v {
+			quotedArgs = append(quotedArgs, shellescape.Quote(s))
+		}
+		quoted[k] = quotedArgs
+	}
+	return quoted
+}
+
+func splitUnquotedSpace(s string) []string {
+	var quoteRune rune
+	result := []string{}
+	currentWord := ""
+	for _, r := range s {
+		if (quoteRune == 0 && isSpace(r)) || r == quoteRune {
+			quoteRune = 0
+			result = appendWord(result, currentWord)
+			currentWord = ""
+			continue
+		} else if quoteRune == 0 && isQuote(r) {
+			quoteRune = r
+			continue
+		} else {
+			currentWord = currentWord + string(r)
+		}
+	}
+	result = appendWord(result, currentWord)
+	return result
+}
+
+func appendWord(r []string, word string) []string {
+	if len(word) > 0 {
+		return append(r, word)
+	}
+	return r
+}
+
+func isSpace(r rune) bool {
+	return r == ' ' || r == '\t'
+}
+
+func isQuote(r rune) bool {
+	return r == '\'' || r == '"'
 }
