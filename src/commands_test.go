@@ -185,8 +185,8 @@ func TestCheckForTaints(t *testing.T) {
 }
 
 func TestSplitUnquotedSpace(t *testing.T) {
-	cases := []string{"asd", "sdf sdf", "sdflj 'sdfkj sdklj' sdf"}
-	expected := [][]string{{"asd"}, {"sdf", "sdf"}, {"sdflj", "sdfkj sdklj", "sdf"}}
+	cases := []string{"asd", "sdf 'sdf'", "sdflj 'sdfkj sdklj' sdf"}
+	expected := [][]string{{"asd"}, {"sdf", "'sdf'"}, {"sdflj", "'sdfkj sdklj'", "sdf"}}
 	for i, c := range cases {
 		result := splitUnquotedSpace(c)
 		if len(expected[i]) != len(result) {

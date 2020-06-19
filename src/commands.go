@@ -218,17 +218,16 @@ func splitUnquotedSpace(s string) []string {
 	result := []string{}
 	currentWord := ""
 	for _, r := range s {
-		if (quoteRune == 0 && isSpace(r)) || r == quoteRune {
-			quoteRune = 0
+		if quoteRune == 0 && isSpace(r) {
 			result = appendWord(result, currentWord)
 			currentWord = ""
 			continue
+		} else if r == quoteRune {
+			quoteRune = 0
 		} else if quoteRune == 0 && isQuote(r) {
 			quoteRune = r
-			continue
-		} else {
-			currentWord = currentWord + string(r)
 		}
+		currentWord = currentWord + string(r)
 	}
 	result = appendWord(result, currentWord)
 	return result
